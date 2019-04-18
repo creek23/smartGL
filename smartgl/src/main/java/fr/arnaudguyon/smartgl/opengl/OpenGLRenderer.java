@@ -324,7 +324,7 @@ public abstract class OpenGLRenderer implements GLSurfaceView.Renderer {
                     GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
                     GLES20.glEnableVertexAttribArray(mUvAttribId);
 
-                    GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+                    GLES20.glBlendFuncSeparate(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA, GLES20.GL_ONE, GLES20.GL_ONE);
                     //GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);	// premultiply alpha
                     GLES20.glEnable(GLES20.GL_BLEND);
                 }
