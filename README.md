@@ -202,6 +202,7 @@ The Camera is set at position (0,0,0) by default, and looking to -Z direction. I
 public class MainActivity extends AppCompatActivity implements SmartGLViewController {
 
     private Object3D mSpaceship;
+    private Object3D mSpaceshipCollada;
     private Texture mShipTexture;
 
     @Override
@@ -222,6 +223,10 @@ public class MainActivity extends AppCompatActivity implements SmartGLViewContro
         mSpaceship.setScale(0.1f, 0.1f, 0.1f);  // Adjust the scale if object is too big / too small
         mSpaceship.setPos(0, 0, -5);            // move the object in front of the camera
         renderPassObject3D.addObject(mSpaceship);
+	
+	ColladaModel modelCollada = new ColladaModel.Builder(context, R.raw.space_cruiser_collada).create();
+        mSpaceshipCollada = modelCollada.toObject3D();
+        renderPassObject3D.addObject(mSpaceshipCollada);
     }
 
     @Override
