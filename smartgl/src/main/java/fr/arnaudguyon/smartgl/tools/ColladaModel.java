@@ -39,6 +39,7 @@ import fr.arnaudguyon.smartgl.opengl.Object3D;
 import fr.arnaudguyon.smartgl.opengl.Texture;
 import fr.arnaudguyon.smartgl.opengl.UVList;
 import fr.arnaudguyon.smartgl.opengl.VertexList;
+import fr.arnaudguyon.smartgl.tools.Assert;
 
 /**
  * Created by creek23 on 01.05.19.
@@ -52,7 +53,7 @@ public class ColladaModel {
     public static class Builder {
         private Context mContext;
         private int mRawResourceId;
-        //private boolean mOptimizeModel = true;
+        private boolean mOptimizeModel = true;
         private HashMap<String, Texture> mTextures = new HashMap<>();
         private float[] mColor = {1, 1, 1};
 
@@ -60,7 +61,10 @@ public class ColladaModel {
             mContext = context;
             mRawResourceId = rawFileResourceId;
         }
-
+        public Builder optimize(boolean optimizeModel) {
+            mOptimizeModel = optimizeModel;
+            return this;
+        }
         public Builder addTexture(String textureName, Texture texture) {
             mTextures.put(textureName, texture);
             return this;
@@ -75,9 +79,9 @@ public class ColladaModel {
         public ColladaModel create() {
             ColladaModel collada = new ColladaModel();
             collada.loadObject(mContext, mRawResourceId);
-            //if (mOptimizeModel) {
-            //    wavefront.mergeStrips();
-            //}
+            if (mOptimizeModel) {
+                //wavefront.mergeStrips();
+            }
             collada.mTextures = mTextures;
             collada.mColor = mColor;
             return collada;
@@ -85,10 +89,9 @@ public class ColladaModel {
     }
 
     private String xmlItem = "";
-    private static final String TAG = "ColladaModel";
 
     XmlPullParser parser;
-    ColladaModel() {
+    private ColladaModel() {
         //
     }
     private void loadObject(Context context, int rawResId) throws RuntimeException {
