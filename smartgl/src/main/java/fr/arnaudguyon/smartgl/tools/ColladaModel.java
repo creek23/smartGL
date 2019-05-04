@@ -182,7 +182,7 @@ public class ColladaModel {
                 for (int j = 0; j < library_geometries.geometry.get(0).mesh.source.get(i).float_array.count; j += library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride) {
                     UV l_uv = new UV(
                             library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j),
-                            library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 1)
+                            1-library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 1)
                     );
                     mUVs.add(l_uv);
                 }
@@ -194,30 +194,28 @@ public class ColladaModel {
         int INPUT_TEXCOORD = -1;
         for (int i = 0; i < library_geometries.geometry.get(0).mesh.triangles.get(0).input.size(); ++i) {
             if (library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).semantic.equals("VERTEX")) {
-                INPUT_VERTEX = library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).offset; //i;
+                INPUT_VERTEX = library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).offset;
             } else if (library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).semantic.equals("NORMAL")) {
-                INPUT_NORMAL = library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).offset; //i;
+                INPUT_NORMAL = library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).offset;
             } else if (library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).semantic.equals("TEXCOORD")) {
-                INPUT_TEXCOORD = library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).offset; //i;
+                INPUT_TEXCOORD = library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).offset;
             }
         }
 
         int INPUT_increment = INPUT_VERTEX + INPUT_NORMAL + INPUT_TEXCOORD;
         Assert.assertTrue((INPUT_increment != -3));
-        if (INPUT_increment == -1) {
+        if (INPUT_increment == -2) {
             INPUT_increment = 1;
         } else if (INPUT_increment == 0) {
             INPUT_increment = 2;
         } else {
             INPUT_increment = 3;
         }
-        int triangleIndex = 0;
-        int triangleXYZ = 0;
 
         for (int i = 0; i < library_geometries.geometry.get(0).mesh.triangles.get(0).p.value.size(); i += INPUT_increment) {
             if (INPUT_VERTEX != -1) { vertexIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(0).p.value.get(i + INPUT_VERTEX)); }
             if (INPUT_NORMAL != -1) { normalIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(0).p.value.get(i + INPUT_NORMAL)); }
-            if (INPUT_TEXCOORD != -1) { uvIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(0).p.value.get(i + INPUT_NORMAL)); }
+            if (INPUT_TEXCOORD != -1) { uvIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(0).p.value.get(i + INPUT_TEXCOORD)); }
         }
     }
 
@@ -229,13 +227,6 @@ public class ColladaModel {
     public Object3D toObject3D() {
         final boolean hasUV = (mUVs.size() > 0);
         final boolean hasNormals = (mNormals.size() > 0);
-
-        Log.d("COLLADA", "normalIndex.size " + normalIndex.size());
-        Log.d("COLLADA", "vertexIndex.size " + vertexIndex.size());
-        Log.d("COLLADA", "uvIndex.size " + uvIndex.size());
-        Log.d("COLLADA", "mNormals.size " + mNormals.size());
-        Log.d("COLLADA", "mVertex.size " + mVertex.size());
-        Log.d("COLLADA", "mUVs.size " + mUVs.size());
 
         Object3D object3D = new Object3D();
         for (int i = 0; i < triangleCount; ++i) {
@@ -293,8 +284,10 @@ public class ColladaModel {
             if (hasUV) {
                 uvList.finalizeBuffer();
                 face3D.setUVList(uvList);
-                //Texture texture = mTextures.get(strip.mTextureName);
-                Texture texture = mTextures.get("spaceshipMaterial");
+                Assert.assertNotNull(library_images);
+                Assert.assertNotNull(library_images.image);
+                Assert.assertNotNull(library_images.image.get(0));
+                Texture texture = mTextures.get(library_images.image.get(0).id);
                 face3D.setTexture(texture);
             } else {
                 colorList.finalizeBuffer();
@@ -313,9 +306,7 @@ public class ColladaModel {
     }
 
     private HashMap<String, Texture> mTextures = new HashMap<>();
-    public void addTexture(String textureName, Texture texture) {
-        mTextures.put(textureName, texture);
-    }
+
     private class Vertex {
         float mX;
         float mY;
@@ -464,6 +455,9 @@ public class ColladaModel {
                                 //            -- sky_exposure
                                 //            -- sky_colorspace
                             } else if ("library_images".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                Log.d("COLLADA!","library_images IN");
+                                parseColladaLibraryImages();
+                                Log.d("COLLADA!","library_images OUT");
                             } else if ("library_effects".equals(xmlItem) && eventType == XmlPullParser.START_TAG) { //[optional?]
                                 //TODO: implement effects parsing
                                 //effect
@@ -790,6 +784,44 @@ public class ColladaModel {
         }
     }
 
+    private void parseColladaLibraryImages() {
+        //image
+        //  -- init_from
+        try {
+            library_images = new SLibraryImages();
+            int eventType = parser.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                eventType = parser.next();
+                xmlItem = parser.getName();
+                if ("image".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                    if (library_images.image == null) { library_images.image = new Vector<>(); }
+                    SImage l_image = new SImage();
+                        l_image.id = parser.getAttributeValue(null,"id");
+                        l_image.name = parser.getAttributeValue(null,"name");
+                    library_images.image.add(l_image);
+                    while (eventType != XmlPullParser.END_DOCUMENT) {
+                        eventType = parser.next();
+                        xmlItem = parser.getName();
+                        //  -- init_from
+                        if ("init_from".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            library_images.image.get(library_images.image.size()-1).init_from = parser.getText();
+                        } else if ("image".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                            break;
+                        }
+                    }
+                } else if (xmlItem == null) {
+                    //do nothing
+                } else if ("library_images".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                    break;
+                }
+            }
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void parseColladaLibraryMaterials() {
         //material
         //  -- instance_effect
@@ -800,7 +832,7 @@ public class ColladaModel {
                 eventType = parser.next();
                 xmlItem = parser.getName();
                 if ("material".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    library_materials.material = new Vector<>();
+                    if (library_materials.material == null) { library_materials.material = new Vector<>(); }
                     SMaterial l_material = new SMaterial();
                         l_material.id = parser.getAttributeValue(null,"id");
                         l_material.name = parser.getAttributeValue(null,"name");
@@ -960,6 +992,7 @@ public class ColladaModel {
                             ).float_array.value = new Vector<>();
                             String[] l_float = parser.getText().split(" ");
                             for (int i = 0; i < l_float.length; ++i) {
+                                if (l_float[i].isEmpty()) continue;
                                 library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
                                         library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
                                 ).float_array.value.add(Float.parseFloat(l_float[i]));
@@ -1025,6 +1058,7 @@ public class ColladaModel {
                             String[] l_value = parser.getText().split(" ");
                             Log.d("COLLADA", "l_value.length " + l_value.length);
                             for (int i = 0; i < l_value.length; ++i) {
+                                if (l_value[i].isEmpty()) continue;
                                 library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.get(
                                         library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.size()-1
                                 ).p.value.add(Integer.parseInt(l_value[i]));
@@ -1288,6 +1322,8 @@ public class ColladaModel {
         Vector<SImage> image;
     }
         class SImage {
+            String id;
+            String name;
             String init_from;
             SImageExtra extra;
         }
