@@ -224,7 +224,9 @@ public class MainActivity extends AppCompatActivity implements SmartGLViewContro
         mSpaceship.setPos(0, 0, -5);            // move the object in front of the camera
         renderPassObject3D.addObject(mSpaceship);
 	
-	ColladaModel modelCollada = new ColladaModel.Builder(context, R.raw.space_cruiser_collada).create();
+	ColladaModel modelCollada = new ColladaModel.Builder(getApplicationContext(), R.raw.space_cruiser_collada_textured)
+                .addTexture("space_cruiser_4_color_png", mShipTexture)	// "space_cruiser_4_color_png" is defined in the space_cruiser_collada_textured
+                .create();
         mSpaceshipCollada = modelCollada.toObject3D();
         renderPassObject3D.addObject(mSpaceshipCollada);
     }
