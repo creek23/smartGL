@@ -137,92 +137,96 @@ public class ColladaModel {
         Assert.assertNotNull(library_geometries);
         Assert.assertNotNull(library_geometries.geometry);
         Assert.assertNotNull(library_geometries.geometry.get(0).mesh);
-        Assert.assertNotNull(library_geometries.geometry.get(0).mesh.triangles);
-        Assert.assertNotNull(library_geometries.geometry.get(0).mesh.triangles.get(0).input);
         Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source);
+        Assert.assertNotNull(library_geometries.geometry.get(0).mesh.triangles);
 
-        triangleCount = library_geometries.geometry.get(0).mesh.triangles.get(0).count;
-        for (int i = 0; i < triangleCount; ++i) {
-            mFaces.add(new Face3D());
-        }
-
-        for (int i = 0; i < library_geometries.geometry.get(0).mesh.source.size(); ++i) {
-            Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source);
-            Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i));
-            Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).float_array);
-            Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).float_array.value);
-            if (library_geometries.geometry.get(0).mesh.source.get(i).id.equals((library_geometries.geometry.get(0).id + "-positions"))) {
-                Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common);
-                Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor);
-                Log.i("COLLADA", "populating Vertex count " + library_geometries.geometry.get(0).mesh.source.get(i).float_array.count + " stride " + library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride);
-                for (int j = 0; j < library_geometries.geometry.get(0).mesh.source.get(i).float_array.count; j += library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride) {
-                    Vertex l_vertex = new Vertex(
-                            library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j),
-                            library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 1),
-                            library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 2)
-                    );
-                    mVertex.add(l_vertex);
-                }
-            } else if (library_geometries.geometry.get(0).mesh.source.get(i).id.equals((library_geometries.geometry.get(0).id + "-normals"))) {
-                Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common);
-                Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor);
-                Log.i("COLLADA", "populating Normals count " + library_geometries.geometry.get(0).mesh.source.get(i).float_array.count + " stride " + library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride);
-                for (int j = 0; j < library_geometries.geometry.get(0).mesh.source.get(i).float_array.count; j += library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride) {
-                    Normal l_normal = new Normal(
-                            library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j),
-                            library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 1),
-                            library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 2)
-                    );
-                    mNormals.add(l_normal);
-                }
-            } else if (library_geometries.geometry.get(0).mesh.source.get(i).id.equals((library_geometries.geometry.get(0).id + "-map-0"))) {
-                Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common);
-                Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor);
-                Log.i("COLLADA", "populating UVs count " + library_geometries.geometry.get(0).mesh.source.get(i).float_array.count + " stride " + library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride);
-                for (int j = 0; j < library_geometries.geometry.get(0).mesh.source.get(i).float_array.count; j += library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride) {
-                    UV l_uv = new UV(
-                            library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j),
-                            1-library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 1)
-                    );
-                    mUVs.add(l_uv);
+            for (int i = 0; i < library_geometries.geometry.get(0).mesh.source.size(); ++i) {
+                Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source);
+                Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i));
+                Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).float_array);
+                Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).float_array.value);
+                if (library_geometries.geometry.get(0).mesh.source.get(i).id.equals((library_geometries.geometry.get(0).id + "-positions"))) {
+                    Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common);
+                    Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor);
+                    Log.i("COLLADA", "populating Vertex count " + library_geometries.geometry.get(0).mesh.source.get(i).float_array.count + " stride " + library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride);
+                    for (int j = 0; j < library_geometries.geometry.get(0).mesh.source.get(i).float_array.count; j += library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride) {
+                        Vertex l_vertex = new Vertex(
+                                library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j),
+                                library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 1),
+                                library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 2)
+                        );
+                        mVertex.add(l_vertex);
+                    }
+                } else if (library_geometries.geometry.get(0).mesh.source.get(i).id.equals((library_geometries.geometry.get(0).id + "-normals"))) {
+                    Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common);
+                    Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor);
+                    Log.i("COLLADA", "populating Normals count " + library_geometries.geometry.get(0).mesh.source.get(i).float_array.count + " stride " + library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride);
+                    for (int j = 0; j < library_geometries.geometry.get(0).mesh.source.get(i).float_array.count; j += library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride) {
+                        Normal l_normal = new Normal(
+                                library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j),
+                                library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 1),
+                                library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 2)
+                        );
+                        mNormals.add(l_normal);
+                    }
+                } else if (library_geometries.geometry.get(0).mesh.source.get(i).id.equals((library_geometries.geometry.get(0).id + "-map-0"))) {
+                    Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common);
+                    Assert.assertNotNull(library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor);
+                    Log.i("COLLADA", "populating UVs count " + library_geometries.geometry.get(0).mesh.source.get(i).float_array.count + " stride " + library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride);
+                    for (int j = 0; j < library_geometries.geometry.get(0).mesh.source.get(i).float_array.count; j += library_geometries.geometry.get(0).mesh.source.get(i).technique_common.accessor.stride) {
+                        UV l_uv = new UV(
+                                library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j),
+                                1-library_geometries.geometry.get(0).mesh.source.get(i).float_array.value.get(j + 1)
+                        );
+                        mUVs.add(l_uv);
+                    }
                 }
             }
-        }
+        triangleCount = 0;
+        for (triangleIndex = 0; triangleIndex < library_geometries.geometry.get(0).mesh.triangles.size(); ++triangleIndex) {
+            Assert.assertNotNull(library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).input);
 
-        int INPUT_VERTEX = -1;
-        int INPUT_NORMAL = -1;
-        int INPUT_TEXCOORD = -1;
-        for (int i = 0; i < library_geometries.geometry.get(0).mesh.triangles.get(0).input.size(); ++i) {
-            if (library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).semantic.equals("VERTEX")) {
-                INPUT_VERTEX = library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).offset;
-            } else if (library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).semantic.equals("NORMAL")) {
-                INPUT_NORMAL = library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).offset;
-            } else if (library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).semantic.equals("TEXCOORD")) {
-                INPUT_TEXCOORD = library_geometries.geometry.get(0).mesh.triangles.get(0).input.get(i).offset;
+            triangleCount += library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).count;
+            for (int i = 0; i < library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).count; ++i) {
+                mFaces.add(new Face3D());
             }
-        }
 
-        int INPUT_increment = INPUT_VERTEX + INPUT_NORMAL + INPUT_TEXCOORD;
-        Assert.assertTrue((INPUT_increment != -3));
-        if (INPUT_increment == -2) {
-            INPUT_increment = 1;
-        } else if (INPUT_increment == 0) {
-            INPUT_increment = 2;
-        } else {
-            INPUT_increment = 3;
-        }
+            int INPUT_VERTEX = -1;
+            int INPUT_NORMAL = -1;
+            int INPUT_TEXCOORD = -1;
+            for (int i = 0; i < library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).input.size(); ++i) {
+                if (library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).input.get(i).semantic.equals("VERTEX")) {
+                    INPUT_VERTEX = library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).input.get(i).offset;
+                } else if (library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).input.get(i).semantic.equals("NORMAL")) {
+                    INPUT_NORMAL = library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).input.get(i).offset;
+                } else if (library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).input.get(i).semantic.equals("TEXCOORD")) {
+                    INPUT_TEXCOORD = library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).input.get(i).offset;
+                }
+            }
 
-        for (int i = 0; i < library_geometries.geometry.get(0).mesh.triangles.get(0).p.value.size(); i += INPUT_increment) {
-            if (INPUT_VERTEX != -1) { vertexIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(0).p.value.get(i + INPUT_VERTEX)); }
-            if (INPUT_NORMAL != -1) { normalIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(0).p.value.get(i + INPUT_NORMAL)); }
-            if (INPUT_TEXCOORD != -1) { uvIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(0).p.value.get(i + INPUT_TEXCOORD)); }
+            int INPUT_increment = INPUT_VERTEX + INPUT_NORMAL + INPUT_TEXCOORD;
+            Assert.assertTrue((INPUT_increment != -3));
+            if (INPUT_increment == -2) {
+                INPUT_increment = 1;
+            } else if (INPUT_increment == 0) {
+                INPUT_increment = 2;
+            } else {
+                INPUT_increment = 3;
+            }
+
+            for (int i = 0; i < library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.size(); i += INPUT_increment) {
+                if (INPUT_VERTEX != -1) { vertexIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.get(i + INPUT_VERTEX)); }
+                if (INPUT_NORMAL != -1) { normalIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.get(i + INPUT_NORMAL)); }
+                if (INPUT_TEXCOORD != -1) { uvIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.get(i + INPUT_TEXCOORD)); }
+            }
         }
     }
 
     Vector<Integer> vertexIndex = new Vector<>();
     Vector<Integer> normalIndex = new Vector<>();
     Vector<Integer> uvIndex = new Vector<>();
-    int triangleCount;
+    private int triangleCount;
+    private int triangleIndex = 0;
 
     public Object3D toObject3D() {
         final boolean hasUV = (mUVs.size() > 0);
@@ -375,7 +379,9 @@ public class ColladaModel {
                                 parseColladaAsset();
                                 Log.d("COLLADA!","asset OUT");
                             } else if ("library_animations".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                                ///TODO: finish loading and rendering first!!!
+                                Log.d("COLLADA!","library_animations IN");
+                                parseColladaLibraryAnimations();
+                                Log.d("COLLADA!","library_animations OUT");
                             } else if ("library_cameras".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
                                 Log.d("COLLADA!","library_cameras IN");
                                 parseColladaLibraryCameras();
@@ -583,6 +589,215 @@ public class ColladaModel {
         }
     }
 
+    private void parseColladaLibraryAnimations() {
+        //animation
+        //  -- source
+        //       -- float_array
+        //       -- technique_common
+        //            -- accessor
+        //                 -- param
+        //       -- technique
+        //            -- pre_infinity
+        //            -- post_infinity
+        //  -- sampler
+        //       -- input
+        //  -- channel
+        try {
+            library_animations = new SLibraryAnimations();
+            int eventType = parser.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                eventType = parser.next();
+                xmlItem = parser.getName();
+                if ("animation".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                    if (library_animations.animation == null) { library_animations.animation = new Vector<>(); }
+                    SAnimation l_animation = new SAnimation();
+                        l_animation.id = parser.getAttributeValue(null,"id");
+                    library_animations.animation.add(l_animation);
+                    while (eventType != XmlPullParser.END_DOCUMENT) {
+                        eventType = parser.next();
+                        xmlItem = parser.getName();
+                        //  -- source
+                        //  -- sampler
+                        //  -- channel
+                        if ("source".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            Log.d("COLLADA!","source IN");
+                            parseColladaLibraryAnimationsSource();
+                            Log.d("COLLADA!","source OUT");
+                        } else if ("sampler".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+//                            SAnimation l_animation = new SAnimation();
+                            l_animation.sampler = new SSampler();
+                            l_animation.sampler.id = parser.getAttributeValue(null,"id");
+                            //       -- input
+                            while (eventType != XmlPullParser.END_DOCUMENT) {
+                                eventType = parser.next();
+                                xmlItem = parser.getName();
+                                if ("input".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                    if (l_animation.sampler.input == null) { l_animation.sampler.input = new Vector<>(); }
+                                    SSamplerInput l_input = new SSamplerInput();
+                                        l_input.semantic = parser.getAttributeValue(null,"semantic");
+                                        l_input.source = parser.getAttributeValue(null,"source");
+                                    l_animation.sampler.input.add(l_input);
+                                    Log.d("COLLADA!xxx", "input exit " + xmlItem);
+                                } else if (xmlItem == null) {
+                                    //do nothing
+                                } else if ("sampler".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                    Log.d("COLLADA!f", "sampler legit exiting " + xmlItem);
+                                    break;
+                                }
+                            }
+                        } else if ("channel".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            Log.d("COLLADA!","channel IN");
+                            l_animation.channel = new SChannel();
+                            l_animation.channel.source = parser.getAttributeValue(null,"source");
+                            l_animation.channel.target = parser.getAttributeValue(null,"target");
+                            Log.d("COLLADA!","channel OUT");
+                        } else if (xmlItem == null) {
+                            //do nothing
+                        } else if ("animation".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                            break;
+                        }
+                    }
+                } else if (xmlItem == null) {
+                    //do nothing
+                } else if ("library_animations".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                    Log.d("COLLADA!f", "library_animations legit exiting " + xmlItem);
+                    break;
+                }
+                Log.d("COLLADA!f", "library_animations loop " + xmlItem);
+            }
+            Log.d("COLLADA!g", "library_animations exit " + xmlItem);
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Log.d("COLLADA", "library_animations.animation " + library_animations.animation.size());
+        Log.d("COLLADA", "library_animations.animation.get(0).sources.size() " + library_animations.animation.get(0).sources.size());
+/*        for (int i = 0; i < 999999999; i++){
+            for (int j = 0; j < 999999999; j++) {
+                Math.abs(i*j/10);
+            }
+        }
+        Assert.assertTrue(false);*/
+    }
+
+        private void parseColladaLibraryAnimationsSource() {
+            //       -- float_array
+            //       -- [Name_array]
+            //       -- technique_common
+            //            -- accessor
+            //                 -- param
+            //       -- [technique]
+            //            -- pre_infinity
+            //            -- post_infinity
+            try {
+                if (library_animations.animation.get(library_animations.animation.size()-1).sources == null) {
+                    library_animations.animation.get(library_animations.animation.size()-1).sources = new Vector<>();
+                }
+                SAnimationSource l_source = new SAnimationSource();
+                    l_source.id = parser.getAttributeValue(null,"id");
+                    Log.d("COLLADA", "l_source.id " + l_source.id);
+                library_animations.animation.get(library_animations.animation.size()-1).sources.add(l_source);
+                int eventType = parser.getEventType();
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    eventType = parser.next();
+                    xmlItem = parser.getName();
+                    Log.d("COLLADA","source() xmlItem " + xmlItem + " eventType " + eventType);
+                    if ("float_array".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+//                        Assert.assertNotNull(l_source.float_array);
+                        l_source.float_array = new SFloatArray();
+                        l_source.float_array.id = parser.getAttributeValue(null,"id");
+                        l_source.float_array.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                        l_source.float_array.value = new Vector<>();
+                        parser.next();
+                        String[] l_float = parser.getText().split(" ");
+                        for (int i = 0; i < l_float.length; ++i) {
+                            if (l_float[i].isEmpty()) continue;
+                            l_source.float_array.value.add(Float.parseFloat(l_float[i]));
+                        }
+                        Log.d("COLLADA!xxx", "float_array exit " + xmlItem);
+                    } else if ("Number_array".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        l_source.Name_array = new SAnimationSourceNameArray();
+                        l_source.Name_array.id = parser.getAttributeValue(null,"id");
+                        l_source.Name_array.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                        l_source.Name_array.value = new Vector<>();
+                        String[] l_Name = parser.getText().split(" ");
+                        parser.next();
+                        for (int i = 0; i < l_Name.length; ++i) {
+                            if (l_Name[i].isEmpty()) continue;
+                            l_source.Name_array.value.add(l_Name[i]);
+                        }
+                        Log.d("COLLADA!xxx", "Number_array exit " + xmlItem);
+                    } else if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        l_source.technique_common = new SAnimationSourceTechniqueCommon();
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            eventType = parser.next();
+                            xmlItem = parser.getName();
+                            //            -- accessor
+                            if ("accessor".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                l_source.technique_common.accessor = new SAnimationSourceTechniqueCommonAccessor();
+                                l_source.technique_common.accessor.source = parser.getAttributeValue(null,"source");
+                                l_source.technique_common.accessor.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                                l_source.technique_common.accessor.stride = Integer.parseInt(parser.getAttributeValue(null,"stride"));
+                                while (eventType != XmlPullParser.END_DOCUMENT) {
+                                    eventType = parser.next();
+                                    xmlItem = parser.getName();
+                                    //                 -- param
+                                    if ("param".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                        if (l_source.technique_common.accessor.params == null) { l_source.technique_common.accessor.params = new Vector<>(); }
+                                        SAnimationSourceTechniqueCommonAccessorParam l_param = new SAnimationSourceTechniqueCommonAccessorParam();
+                                            l_param.name = parser.getAttributeValue(null,"name");
+                                            l_param.type = parser.getAttributeValue(null,"type");
+                                        l_source.technique_common.accessor.params.add(l_param);
+                                    } else if (xmlItem == null) {
+                                        //do nothing
+                                    } else if ("accessor".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                        break;
+                                    }
+                                }
+                                Log.d("COLLADA!xxx", "accessor exit " + xmlItem);
+                            } else if (xmlItem == null) {
+                                //do nothing
+                            } else if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                break;
+                            }
+                        }
+                        Log.d("COLLADA!xxx", "technique_common exit " + xmlItem);
+                    } else if ("technique".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        l_source.technique = new SAnimationSourceTechnique();
+                        l_source.technique.profile = parser.getAttributeValue(null,"profile");
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            eventType = parser.next();
+                            xmlItem = parser.getName();
+                            //            -- pre_infinity
+                            //            -- post_infinity
+                            if ("pre_infinity".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                l_source.technique.pre_infinity = parser.getText();
+                            } else if ("post_infinity".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                l_source.technique.post_infinity = parser.getText();
+                            } else if (xmlItem == null) {
+                                //do nothing
+                            } else if ("technique".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                break;
+                            }
+                        }
+                        Log.d("COLLADA!xxx", "technique exit " + xmlItem);
+                    } else if (xmlItem == null) {
+                        //do nothing
+                    } else if ("source".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                        Log.d("COLLADA!f", "source legit exiting " + xmlItem);
+                        break;
+                    }
+                    //Log.d("COLLADA!f", "source loop " + xmlItem);
+                }
+                Log.d("COLLADA!g", "source exit " + xmlItem);
+            } catch (XmlPullParserException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     private void parseColladaLibraryCameras() {
         //camera
         //  -- optics
@@ -628,7 +843,6 @@ public class ColladaModel {
                     }
                 } else if (xmlItem == null) {
                     //do nothing
-                    Log.d("COLLADA!f", "library_cameras DO NOTHING");
                 } else if ("library_cameras".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                     Log.d("COLLADA!f", "library_cameras legit exiting " + xmlItem);
                     break;
@@ -673,7 +887,6 @@ public class ColladaModel {
                     Log.d("COLLADA!xxx","technique_common exit " + xmlItem);
                 } else if (xmlItem == null) {
                     //do nothing
-                    Log.d("COLLADA!f", "optics DO NOTHING");
                 } else if ("optics".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                     Log.d("COLLADA!f", "optics legit exiting " + xmlItem);
                     break;
@@ -1019,6 +1232,9 @@ public class ColladaModel {
                             break;
                         }
                     }
+                } else if ("polylist".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                    Log.e("COLLADA", "Please 'Triangulate' all quads in your model.");
+                    Assert.assertTrue(false);
                 } else if ("triangles".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
                     if (library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.triangles == null) {
                         library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles = new Vector<>();
@@ -1197,8 +1413,57 @@ public class ColladaModel {
             String unit_value;
         }
     class SLibraryAnimations {
-        //TODO: implement later
+        Vector<SAnimation> animation;
     }
+        class SAnimation {
+            String id;
+            Vector<SAnimationSource> sources;
+            SSampler sampler;
+            SChannel channel;
+        }
+            class SAnimationSource {
+                String id;
+                SFloatArray float_array;
+                SAnimationSourceNameArray Name_array;
+                SAnimationSourceTechniqueCommon technique_common;
+                SAnimationSourceTechnique technique;
+            }
+                class SAnimationSourceTechniqueCommon {
+                    SAnimationSourceTechniqueCommonAccessor accessor;
+                }
+                    class SAnimationSourceTechniqueCommonAccessor {
+                        String source;
+                        int count;
+                        int stride;
+                        Vector<SAnimationSourceTechniqueCommonAccessorParam> params;
+                    }
+                        class SAnimationSourceTechniqueCommonAccessorParam {
+                            String name;
+                            String type;
+                        }
+                class SAnimationSourceTechnique {
+                    String profile;
+                    String pre_infinity;
+                    String post_infinity;
+                }
+                class SAnimationSourceNameArray {
+                    String id;
+                    int count;
+                    Vector<String> value;
+                }
+            class SSampler {
+                String id;
+                Vector<SSamplerInput> input;
+            }
+                class SSamplerInput {
+                    String semantic;
+                    String source;
+                }
+            class SChannel {
+                String source;
+                String target;
+            }
+
     class SLibraryCameras {
         Vector<SCamera> camera;
     }
