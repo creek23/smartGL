@@ -491,6 +491,9 @@ public class ColladaModel {
                                 parseColladaLibraryGeometries();
                                 Log.d("COLLADA!","library_geometries OUT");
                             } else if ("library_controllers".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                Log.d("COLLADA!","library_controllers IN");
+                                parseColladaLibraryControllers();
+                                Log.d("COLLADA!","library_controllers OUT");
                             } else if ("library_visual_scenes".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
                                 //visual_scene
                                 //  -- node (Camera)
@@ -621,7 +624,7 @@ public class ColladaModel {
                         //  -- channel
                         if ("source".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
                             Log.d("COLLADA!","source IN");
-                            parseColladaLibraryAnimationsSource();
+                            parseColladaLibraryAnimationsSource(l_animation);
                             Log.d("COLLADA!","source OUT");
                         } else if ("sampler".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
 //                            SAnimation l_animation = new SAnimation();
@@ -680,8 +683,7 @@ public class ColladaModel {
         }
         Assert.assertTrue(false);*/
     }
-
-        private void parseColladaLibraryAnimationsSource() {
+        private void parseColladaLibraryAnimationsSource(SAnimation p_animation) {
             //       -- float_array
             //       -- [Name_array]
             //       -- technique_common
@@ -691,13 +693,10 @@ public class ColladaModel {
             //            -- pre_infinity
             //            -- post_infinity
             try {
-                if (library_animations.animation.get(library_animations.animation.size()-1).sources == null) {
-                    library_animations.animation.get(library_animations.animation.size()-1).sources = new Vector<>();
-                }
+                if (p_animation.sources == null) { p_animation.sources = new Vector<>(); }
                 SAnimationSource l_source = new SAnimationSource();
                     l_source.id = parser.getAttributeValue(null,"id");
-                    Log.d("COLLADA", "l_source.id " + l_source.id);
-                library_animations.animation.get(library_animations.animation.size()-1).sources.add(l_source);
+                p_animation.sources.add(l_source);
                 int eventType = parser.getEventType();
                 while (eventType != XmlPullParser.END_DOCUMENT) {
                     eventType = parser.next();
@@ -831,11 +830,11 @@ public class ColladaModel {
                         //  -- extra
                         if ("optics".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
                             Log.d("COLLADA!","optics IN");
-                            parseColladaLibraryCamerasCameraOptics();
+                            parseColladaLibraryCamerasCameraOptics(l_camera);
                             Log.d("COLLADA!","optics OUT");
                         } else if ("extra".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
                             Log.d("COLLADA!","extra IN");
-                            parseColladaLibraryCamerasCameraExtra();
+                            parseColladaLibraryCamerasCameraExtra(l_camera);
                             Log.d("COLLADA!","extra OUT");
                         } else if ("camera".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                             break;
@@ -856,8 +855,7 @@ public class ColladaModel {
             e.printStackTrace();
         }
     }
-
-    private void parseColladaLibraryCamerasCameraOptics() {
+        private void parseColladaLibraryCamerasCameraOptics(SCamera p_camera) {
         //       -- technique_common
         //            -- perspective
         //                 -- xfov
@@ -865,20 +863,20 @@ public class ColladaModel {
         //                 -- znear
         //                 -- zfar
         try {
-            library_cameras.camera.get(library_cameras.camera.size()-1).optics = new SOptic();
+            p_camera.optics = new SOptic();
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 eventType = parser.next();
                 xmlItem = parser.getName();
                 if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common = new STechniqueCommon();
+                    p_camera.optics.technique_common = new STechniqueCommon();
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         eventType = parser.next();
                         xmlItem = parser.getName();
                         //            -- perspective
                         if ("perspective".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
                             Log.d("COLLADA!","perspective IN");
-                            parseColladaLibraryCamerasCameraOpticsTechniqueCommonPerspective();
+                            parseColladaLibraryCamerasCameraOpticsTechniqueCommonPerspective(p_camera.optics.technique_common);
                             Log.d("COLLADA!","perspective OUT");
                         } else if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                             break;
@@ -900,35 +898,35 @@ public class ColladaModel {
             e.printStackTrace();
         }
     }
-    private void parseColladaLibraryCamerasCameraOpticsTechniqueCommonPerspective() {
+            private void parseColladaLibraryCamerasCameraOpticsTechniqueCommonPerspective(STechniqueCommon p_techniqueCommon) {
         //                 -- xfov
         //                 -- aspect_ratio
         //                 -- znear
         //                 -- zfar
         try {
-            library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common.perspective = new SPerspective();
+            p_techniqueCommon.perspective = new SPerspective();
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 eventType = parser.next();
                 xmlItem = parser.getName();
                 if ("xfov".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common.perspective.xfov = new SPerspectiveParam();
-                    library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common.perspective.xfov.sid = parser.getAttributeValue(null,"sid");
+                    p_techniqueCommon.perspective.xfov = new SPerspectiveParam();
+                    p_techniqueCommon.perspective.xfov.sid = parser.getAttributeValue(null,"sid");
                     parser.next();
-                    library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common.perspective.xfov.value = parser.getText();
+                    p_techniqueCommon.perspective.xfov.value = parser.getText();
                 } else if ("aspect_ratio".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
                     parser.next();
-                    library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common.perspective.aspect_ratio = parser.getText();
+                    p_techniqueCommon.perspective.aspect_ratio = parser.getText();
                 } else if ("znear".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common.perspective.znear = new SPerspectiveParam();
-                    library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common.perspective.znear.sid = parser.getAttributeValue(null,"sid");
+                    p_techniqueCommon.perspective.znear = new SPerspectiveParam();
+                    p_techniqueCommon.perspective.znear.sid = parser.getAttributeValue(null,"sid");
                     parser.next();
-                    library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common.perspective.znear.value = parser.getText();
+                    p_techniqueCommon.perspective.znear.value = parser.getText();
                 } else if ("zfar".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common.perspective.zfar = new SPerspectiveParam();
-                    library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common.perspective.zfar.sid = parser.getAttributeValue(null,"sid");
+                    p_techniqueCommon.perspective.zfar = new SPerspectiveParam();
+                    p_techniqueCommon.perspective.zfar.sid = parser.getAttributeValue(null,"sid");
                     parser.next();
-                    library_cameras.camera.get(library_cameras.camera.size()-1).optics.technique_common.perspective.zfar.value = parser.getText();
+                    p_techniqueCommon.perspective.zfar.value = parser.getText();
                 } else if (xmlItem == null) {
                     //do nothing
                 } else if ("perspective".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
@@ -941,20 +939,20 @@ public class ColladaModel {
             e.printStackTrace();
         }
     }
-    private void parseColladaLibraryCamerasCameraExtra() {
+        private void parseColladaLibraryCamerasCameraExtra(SCamera p_camera) {
         //       -- technique
         //            -- shiftx
         //            -- shifty
         //            -- YF_dofdis
         try {
-            library_cameras.camera.get(library_cameras.camera.size()-1).extra = new SExtra();
+            p_camera.extra = new SExtra();
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 eventType = parser.next();
                 xmlItem = parser.getName();
                 if ("technique".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique = new STechnique();
-                    library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.profile = parser.getAttributeValue(null,"profile");
+                    p_camera.extra.technique = new STechnique();
+                    p_camera.extra.technique.profile = parser.getAttributeValue(null,"profile");
 
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         eventType = parser.next();
@@ -963,23 +961,23 @@ public class ColladaModel {
                         //            -- shifty
                         //            -- YF_dofdis
                         if ("shiftx".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.shiftx = new STechniqueParam();
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.shiftx.sid = parser.getAttributeValue(null,"sid");
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.shiftx.type = parser.getAttributeValue(null,"type");
+                            p_camera.extra.technique.shiftx = new STechniqueParam();
+                            p_camera.extra.technique.shiftx.sid = parser.getAttributeValue(null,"sid");
+                            p_camera.extra.technique.shiftx.type = parser.getAttributeValue(null,"type");
                             parser.next();
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.shiftx.value = parser.getText();
+                            p_camera.extra.technique.shiftx.value = parser.getText();
                         } else if ("shifty".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.shifty = new STechniqueParam();
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.shifty.sid = parser.getAttributeValue(null,"sid");
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.shifty.type = parser.getAttributeValue(null,"type");
+                            p_camera.extra.technique.shifty = new STechniqueParam();
+                            p_camera.extra.technique.shifty.sid = parser.getAttributeValue(null,"sid");
+                            p_camera.extra.technique.shifty.type = parser.getAttributeValue(null,"type");
                             parser.next();
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.shifty.value = parser.getText();
+                            p_camera.extra.technique.shifty.value = parser.getText();
                         } else if ("YF_dofdist".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.YF_dofdist = new STechniqueParam();
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.YF_dofdist.sid = parser.getAttributeValue(null,"sid");
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.YF_dofdist.type = parser.getAttributeValue(null,"type");
+                            p_camera.extra.technique.YF_dofdist = new STechniqueParam();
+                            p_camera.extra.technique.YF_dofdist.sid = parser.getAttributeValue(null,"sid");
+                            p_camera.extra.technique.YF_dofdist.type = parser.getAttributeValue(null,"type");
                             parser.next();
-                            library_cameras.camera.get(library_cameras.camera.size()-1).extra.technique.YF_dofdist.value = parser.getText();
+                            p_camera.extra.technique.YF_dofdist.value = parser.getText();
                         } else if ("technique".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                             break;
                         }
@@ -1017,7 +1015,7 @@ public class ColladaModel {
                         xmlItem = parser.getName();
                         //  -- init_from
                         if ("init_from".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            library_images.image.get(library_images.image.size()-1).init_from = parser.getText();
+                            l_image.init_from = parser.getText();
                         } else if ("image".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                             break;
                         }
@@ -1055,8 +1053,8 @@ public class ColladaModel {
                         xmlItem = parser.getName();
                         //  -- mesh
                         if ("instance_effect".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            library_materials.material.get(library_materials.material.size()-1).instance_effect = new SInstanceEffect();
-                            library_materials.material.get(library_materials.material.size()-1).instance_effect.url = parser.getAttributeValue(null,"url");
+                            l_material.instance_effect = new SInstanceEffect();
+                            l_material.instance_effect.url = parser.getAttributeValue(null,"url");
                         } else if ("material".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                             break;
                         }
@@ -1073,6 +1071,7 @@ public class ColladaModel {
             e.printStackTrace();
         }
     }
+    
     private void parseColladaLibraryGeometries() {
         //geometry
         //  -- mesh
@@ -1110,7 +1109,7 @@ public class ColladaModel {
                 eventType = parser.next();
                 xmlItem = parser.getName();
                 if ("geometry".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    library_geometries.geometry = new Vector<>();
+                    if (library_geometries.geometry ==null) { library_geometries.geometry = new Vector<>(); }
                     SGeometry l_geometry = new SGeometry();
                         l_geometry.id = parser.getAttributeValue(null,"id");
                         l_geometry.name = parser.getAttributeValue(null,"name");
@@ -1121,7 +1120,7 @@ public class ColladaModel {
                         //  -- mesh
                         if ("mesh".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
                             Log.d("COLLADA!","mesh IN");
-                            parseColladaLibraryGeometriesMesh();
+                            parseColladaLibraryGeometriesMesh(l_geometry);
                             Log.d("COLLADA!","mesh OUT");
                         } else if ("geometry".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                             break;
@@ -1139,153 +1138,232 @@ public class ColladaModel {
             e.printStackTrace();
         }
     }
-    private void parseColladaLibraryGeometriesMesh() {
-        //       -- source (Cube-mesh-positions)
-        //            -- float_array
+        private void parseColladaLibraryGeometriesMesh(SGeometry p_geometry) {
+            //       -- source (Cube-mesh-positions)
+            //            -- float_array
+            //            -- technique_common
+            //                 -- accessor
+            //                      -- param (X)
+            //                      -- param (Y)
+            //                      -- param (Z)
+            //       -- source (Cube-mesh-normals)
+            //            -- float_array
+            //            -- technique_common
+            //                 -- accessor
+            //                      -- param (X)
+            //                      -- param (Y)
+            //                      -- param (Z)
+            //       -- source (Cube-mesh-map) [optional?]
+            //            -- float_array
+            //            -- technique_common
+            //                 -- accessor
+            //                      -- param (S)
+            //                      -- param (T)
+            //       -- vertices
+            //            -- input
+            //       -- triangles
+            //            -- input (VERTEX)
+            //            -- input (NORMAL)
+            //            -- input (TEXCOORD) [optional?]
+            //            -- p
+            try {
+                p_geometry.mesh = new SMesh();
+                int eventType = parser.getEventType();
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    eventType = parser.next();
+                    xmlItem = parser.getName();
+                    if ("source".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        if (p_geometry.mesh.source == null) { p_geometry.mesh.source = new Vector<>(); }
+                        SSource l_source = new SSource();
+                        l_source.id = parser.getAttributeValue(null,"id");
+                        p_geometry.mesh.source.add(l_source);
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            eventType = parser.next();
+                            xmlItem = parser.getName();
+                            //            -- float_array
+                            //            -- technique_common
+                            if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                Log.d("COLLADA!","technique_common IN");
+                                parseColladaLibraryGeometriesMeshTechniqueCommon(l_source);
+                                Log.d("COLLADA!","technique_common OUT");
+                            } else if ("float_array".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                l_source.float_array = new SFloatArray();
+                                l_source.float_array.id = parser.getAttributeValue(null,"id");
+                                l_source.float_array.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                                parser.next();
+                                l_source.float_array.value = new Vector<>();
+                                String[] l_float = parser.getText().split(" ");
+                                for (int i = 0; i < l_float.length; ++i) {
+                                    if (l_float[i].isEmpty()) continue;
+                                    l_source.float_array.value.add(Float.parseFloat(l_float[i]));
+                                }
+                            } else if ("source".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                break;
+                            }
+                        }
+                    } else if ("vertices".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        if (p_geometry.mesh.vertices == null) { p_geometry.mesh.vertices = new SVertices(); }
+                        p_geometry.mesh.vertices.id = parser.getAttributeValue(null,"id");
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            eventType = parser.next();
+                            xmlItem = parser.getName();
+                            //            -- float_array
+                            //            -- technique_common
+                            if ("input".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                p_geometry.mesh.vertices.input = new SVerticesInput();
+                                p_geometry.mesh.vertices.input.semantic = parser.getAttributeValue(null,"semantic");
+                                p_geometry.mesh.vertices.input.source = parser.getAttributeValue(null,"source");
+                            } else if ("vertices".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                break;
+                            }
+                        }
+                    } else if ("polylist".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        Log.e("COLLADA", "Please 'Triangulate' all quads in your model.");
+                        Assert.assertTrue(false);
+                    } else if ("triangles".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        if (p_geometry.mesh.triangles == null) { p_geometry.mesh.triangles = new Vector<>(); }
+                        STriangles l_triangles = new STriangles();
+                            l_triangles.material = parser.getAttributeValue(null,"material");
+                            l_triangles.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                        p_geometry.mesh.triangles.add(l_triangles);
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            eventType = parser.next();
+                            xmlItem = parser.getName();
+                            //            -- float_array
+                            //            -- technique_common
+                            if ("input".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                if (l_triangles.input == null) { l_triangles.input = new Vector<>(); }
+                                STrianglesInput l_STrianglesInput = new STrianglesInput();
+                                    l_STrianglesInput.semantic = parser.getAttributeValue(null,"semantic");
+                                    l_STrianglesInput.source = parser.getAttributeValue(null,"source");
+                                    l_STrianglesInput.offset = Integer.parseInt(parser.getAttributeValue(null,"offset"));
+                                l_triangles.input.add(l_STrianglesInput);
+                            } else if ("p".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                l_triangles.p = new SP();
+                                parser.next();
+                                l_triangles.p.value = new Vector<>();
+                                String[] l_value = parser.getText().split(" ");
+                                Log.d("COLLADA", "l_value.length " + l_value.length);
+                                for (int i = 0; i < l_value.length; ++i) {
+                                    if (l_value[i].isEmpty()) continue;
+                                    l_triangles.p.value.add(Integer.parseInt(l_value[i]));
+                                }
+                            } else if ("triangles".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                break;
+                            }
+                        }
+                    } else if (xmlItem == null) {
+                        //do nothing
+                    } else if ("mesh".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                        break;
+                    }
+                }
+            } catch (XmlPullParserException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+            private void parseColladaLibraryGeometriesMeshTechniqueCommon(SSource p_source) {
+                //                 -- accessor
+                //                      -- param (X)
+                //                      -- param (Y)
+                //                      -- param (Z)
+                try {
+                    p_source.technique_common = new SGeometryTechniqueCommon();
+                    int eventType = parser.getEventType();
+                    while (eventType != XmlPullParser.END_DOCUMENT) {
+                        eventType = parser.next();
+                        xmlItem = parser.getName();
+                        if ("accessor".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            p_source.technique_common.accessor = new SAccessor();
+                            p_source.technique_common.accessor.source = parser.getAttributeValue(null,"source");
+                            p_source.technique_common.accessor.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                            p_source.technique_common.accessor.stride = Integer.parseInt(parser.getAttributeValue(null,"stride"));
+                            while (eventType != XmlPullParser.END_DOCUMENT) {
+                                eventType = parser.next();
+                                xmlItem = parser.getName();
+                                //                      -- param (X)
+                                //                      -- param (Y)
+                                //                      -- param (Z)
+                                //                      ---- or ----
+                                //                      -- param (S)
+                                //                      -- param (Y)
+                                if ("param".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                    String l_name = parser.getAttributeValue(null,"name");
+                                    String l_type = parser.getAttributeValue(null,"type");
+                                    if ("X".equals(l_name)) {
+                                        p_source.technique_common.accessor.paramX = new SAccessorParam();
+                                        p_source.technique_common.accessor.paramX.name = l_name;
+                                        p_source.technique_common.accessor.paramX.name = l_type;
+                                    } else if ("Y".equals(l_name)) {
+                                        p_source.technique_common.accessor.paramY = new SAccessorParam();
+                                        p_source.technique_common.accessor.paramY.name = l_name;
+                                        p_source.technique_common.accessor.paramY.name = l_type;
+                                    } else if ("Z".equals(l_name)) {
+                                        p_source.technique_common.accessor.paramZ = new SAccessorParam();
+                                        p_source.technique_common.accessor.paramZ.name = l_name;
+                                        p_source.technique_common.accessor.paramZ.name = l_type;
+                                    }
+                                } else if ("accessor".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                    break;
+                                }
+                            }
+                        } else if (xmlItem == null) {
+                            //do nothing
+                        } else if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                            break;
+                        }
+                    }
+                } catch (XmlPullParserException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+    private void parseColladaLibraryControllers() {
+        //controller[]
+        //  -- skin
+        //       -- bind_shape_matrix
+        //       -- source[]
+        //            -- Name_array |or| float_array
         //            -- technique_common
         //                 -- accessor
-        //                      -- param (X)
-        //                      -- param (Y)
-        //                      -- param (Z)
-        //       -- source (Cube-mesh-normals)
-        //            -- float_array
-        //            -- technique_common
-        //                 -- accessor
-        //                      -- param (X)
-        //                      -- param (Y)
-        //                      -- param (Z)
-        //       -- source (Cube-mesh-map) [optional?]
-        //            -- float_array
-        //            -- technique_common
-        //                 -- accessor
-        //                      -- param (S)
-        //                      -- param (T)
-        //       -- vertices
-        //            -- input
-        //       -- triangles
-        //            -- input (VERTEX)
-        //            -- input (NORMAL)
-        //            -- input (TEXCOORD) [optional?]
-        //            -- p
+        //                      -- param
+        //       -- joints
+        //            -- input[]
+        //       -- vertex_weights
+        //            -- input[]
+        //            -- vcount
+        //            -- v
         try {
-            library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh = new SMesh();
+            library_controllers = new SLibraryControllers();
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 eventType = parser.next();
                 xmlItem = parser.getName();
-                if ("source".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    if (library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source == null) {
-                        library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.source = new Vector<>();
-                    }
-                    SSource l_sourcce = new SSource();
-                    l_sourcce.id = parser.getAttributeValue(null,"id");
-                    library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.add(l_sourcce);
+                if ("controller".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                    if (library_controllers.controller == null) { library_controllers.controller = new Vector<>(); }
+                    SController l_controller = new SController();
+                    l_controller.id = parser.getAttributeValue(null,"id");
+                    l_controller.name = parser.getAttributeValue(null,"name");
+                    library_controllers.controller.add(l_controller);
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         eventType = parser.next();
                         xmlItem = parser.getName();
-                        //            -- float_array
-                        //            -- technique_common
-                        if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            Log.d("COLLADA!","technique_common IN");
-                            parseColladaLibraryGeometriesMeshTechniqueCommon();
-                            Log.d("COLLADA!","technique_common OUT");
-                        } else if ("float_array".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                    library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                            ).float_array = new SFloatArray();
-                            library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                    library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                            ).float_array.id = parser.getAttributeValue(null,"id");
-                            library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                    library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                            ).float_array.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
-                            parser.next();
-                            library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                    library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                            ).float_array.value = new Vector<>();
-                            String[] l_float = parser.getText().split(" ");
-                            for (int i = 0; i < l_float.length; ++i) {
-                                if (l_float[i].isEmpty()) continue;
-                                library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                                ).float_array.value.add(Float.parseFloat(l_float[i]));
-                            }
-                        } else if ("source".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
-                            break;
-                        }
-                    }
-                } else if ("vertices".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    if (library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.vertices == null) {
-                        library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.vertices = new SVertices();
-                    }
-                    library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.vertices.id = parser.getAttributeValue(null,"id");
-                    while (eventType != XmlPullParser.END_DOCUMENT) {
-                        eventType = parser.next();
-                        xmlItem = parser.getName();
-                        //            -- float_array
-                        //            -- technique_common
-                        if ("input".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.vertices.input = new SVerticesInput();
-                            library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.vertices.input.semantic = parser.getAttributeValue(null,"semantic");
-                            library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.vertices.input.source = parser.getAttributeValue(null,"source");
-                        } else if ("vertices".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
-                            break;
-                        }
-                    }
-                } else if ("polylist".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    Log.e("COLLADA", "Please 'Triangulate' all quads in your model.");
-                    Assert.assertTrue(false);
-                } else if ("triangles".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    if (library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.triangles == null) {
-                        library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles = new Vector<>();
-                    }
-                    STriangles l_triangles = new STriangles();
-                        l_triangles.material = parser.getAttributeValue(null,"material");
-                        l_triangles.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
-                    library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.add(l_triangles);
-                    while (eventType != XmlPullParser.END_DOCUMENT) {
-                        eventType = parser.next();
-                        xmlItem = parser.getName();
-                        //            -- float_array
-                        //            -- technique_common
-                        if ("input".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            if (library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.get(
-                                    library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.size()-1
-                            ).input == null) {
-                                library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.size() - 1
-                                ).input = new Vector<>();
-                            }
-                            STrianglesInput l_STrianglesInput = new STrianglesInput();
-                                l_STrianglesInput.semantic = parser.getAttributeValue(null,"semantic");
-                                l_STrianglesInput.source = parser.getAttributeValue(null,"source");
-                                l_STrianglesInput.offset = Integer.parseInt(parser.getAttributeValue(null,"offset"));
-                            library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.get(
-                                    library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.size()-1
-                            ).input.add(l_STrianglesInput);
-                        } else if ("p".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.get(
-                                    library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.size()-1
-                            ).p = new SP();
-                            parser.next();
-                            library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.get(
-                                    library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.size()-1
-                            ).p.value = new Vector<>();
-                            String[] l_value = parser.getText().split(" ");
-                            Log.d("COLLADA", "l_value.length " + l_value.length);
-                            for (int i = 0; i < l_value.length; ++i) {
-                                if (l_value[i].isEmpty()) continue;
-                                library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size() - 1).mesh.triangles.size()-1
-                                ).p.value.add(Integer.parseInt(l_value[i]));
-                            }
-                        } else if ("triangles".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                        //  -- skin
+                        if ("skin".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            Log.d("COLLADA!","skin IN");
+                            parseColladaLibraryControllersSkin(l_controller);
+                            Log.d("COLLADA!","skin OUT");
+                        } else if ("controller".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                             break;
                         }
                     }
                 } else if (xmlItem == null) {
                     //do nothing
-                } else if ("mesh".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                } else if ("library_controllers".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                     break;
                 }
             }
@@ -1295,75 +1373,129 @@ public class ColladaModel {
             e.printStackTrace();
         }
     }
-    private void parseColladaLibraryGeometriesMeshTechniqueCommon() {
+        private void parseColladaLibraryControllersSkin(SController p_controller) {
+        //       -- bind_shape_matrix
+        //       -- source[]
+        //            -- Name_array |or| float_array
+        //            -- technique_common
         //                 -- accessor
-        //                      -- param (X)
-        //                      -- param (Y)
-        //                      -- param (Z)
+        //                      -- param
+        //       -- joints
+        //            -- input[]
+        //       -- vertex_weights
+        //            -- input[]
+        //            -- vcount
+        //            -- v
         try {
-            library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                    library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-            ).technique_common = new SGeometryTechniqueCommon();
+            p_controller.skin = new SSkin();
+            p_controller.skin.source = parser.getAttributeValue(null,"source");
+            int eventType = parser.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                eventType = parser.next();
+                xmlItem = parser.getName();
+                if ("bind_shape_matrix".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                    p_controller.skin.bind_shape_matrix = new SBindShapeMatrix();
+                    p_controller.skin.bind_shape_matrix.value = parser.getText();
+                } else if ("source".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                    if (p_controller.skin.sources == null) { p_controller.skin.sources = new Vector<>(); }
+                    SControllerSource l_controllerSource = new SControllerSource();
+                    l_controllerSource.id = parser.getAttributeValue(null,"id");
+                    p_controller.skin.sources.add(l_controllerSource);
+                    while (eventType != XmlPullParser.END_DOCUMENT) {
+                        eventType = parser.next();
+                        xmlItem = parser.getName();
+                        //            -- Name_array |or| float_array
+                        //            -- technique_common
+                        if ("Name_array".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            l_controllerSource.Name_array_id = parser.getAttributeValue(null,"id");
+                            l_controllerSource.Name_array_count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                            l_controllerSource.Name_array_value = parser.getText();
+                        } else if ("float_array".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            l_controllerSource.float_array_id = parser.getAttributeValue(null,"id");
+                            l_controllerSource.float_array_count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                            l_controllerSource.float_array_value = parser.getText();
+                        } else if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            Log.d("COLLADA!","technique_common IN");
+                            parseColladaLibraryControllersSkinTechniqueCommon(l_controllerSource);
+                            Log.d("COLLADA!","technique_common OUT");
+                        } else if ("source".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                            break;
+                        }
+                    }
+                } else if ("joints".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                    library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints = new SJoints();
+                    while (eventType != XmlPullParser.END_DOCUMENT) {
+                        eventType = parser.next();
+                        xmlItem = parser.getName();
+                        //            -- input[]
+                        if ("input".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            if (library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints.input == null) {
+                                library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints.input = new Vector<>();
+                            }
+                            SJointsInput l_jointsInput = new SJointsInput();
+                            l_jointsInput.semantic = parser.getAttributeValue(null,"semantic");
+                            l_jointsInput.source = parser.getAttributeValue(null,"source");
+                            library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints.input.add(l_jointsInput);
+                        } else if ("joints".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                            break;
+                        }
+                    }
+                } else if ("vertex_weights".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                    p_controller.skin.vertex_weights = new SVertexWeights();
+                    while (eventType != XmlPullParser.END_DOCUMENT) {
+                        eventType = parser.next();
+                        xmlItem = parser.getName();
+                        //            -- input[]
+                        //            -- vcount
+                        //            -- v
+                        if ("input".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            if (p_controller.skin.vertex_weights.input == null) { p_controller.skin.vertex_weights.input = new Vector<>(); }
+                            SVertexWeightsInput l_vertexWeightsInput = new SVertexWeightsInput();
+                            l_vertexWeightsInput.semantic = parser.getAttributeValue(null,"semantic");
+                            l_vertexWeightsInput.source = parser.getAttributeValue(null,"source");
+                            l_vertexWeightsInput.offset = Integer.parseInt(parser.getAttributeValue(null,"offset"));
+                            p_controller.skin.vertex_weights.input.add(l_vertexWeightsInput);
+                        } else if ("vcount".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            p_controller.skin.vertex_weights.vcount  = parser.getText();
+                        } else if ("v".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            p_controller.skin.vertex_weights.v = parser.getText();
+                        } else if ("vertex_weights".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                            break;
+                        }
+                    }
+                } else if (xmlItem == null) {
+                    //do nothing
+                } else if ("library_controllers".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                    break;
+                }
+            }
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+            private void parseColladaLibraryControllersSkinTechniqueCommon(SControllerSource p_sources) {
+        //                 -- accessor
+        //                      -- param
+        try {
+            p_sources.technique_common = new SControllerSourceTechniqueCommon();
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 eventType = parser.next();
                 xmlItem = parser.getName();
                 if ("accessor".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                            library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                    ).technique_common.accessor = new SAccessor();
-                    library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                            library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                    ).technique_common.accessor.source = parser.getAttributeValue(null,"source");
-                    library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                            library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                    ).technique_common.accessor.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
-                    library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                            library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                    ).technique_common.accessor.stride = Integer.parseInt(parser.getAttributeValue(null,"stride"));
+                    p_sources.technique_common.accessor = new SControllerSourceTechniqueCommonAccessor();
+                    p_sources.technique_common.accessor.source = parser.getAttributeValue(null,"source");
+                    p_sources.technique_common.accessor.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                    p_sources.technique_common.accessor.stride = Integer.parseInt(parser.getAttributeValue(null,"stride"));
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         eventType = parser.next();
                         xmlItem = parser.getName();
-                        //                      -- param (X)
-                        //                      -- param (Y)
-                        //                      -- param (Z)
-                        //                      ---- or ----
-                        //                      -- param (S)
-                        //                      -- param (Y)
+                        //  -- param
                         if ("param".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            String l_name = parser.getAttributeValue(null,"name");
-                            String l_type = parser.getAttributeValue(null,"type");
-                            if ("X".equals(l_name)) {
-                                library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                                ).technique_common.accessor.paramX = new SAccessorParam();
-                                library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                                ).technique_common.accessor.paramX.name = l_name;
-                                library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                                ).technique_common.accessor.paramX.name = l_type;
-                            } else if ("Y".equals(l_name)) {
-                                library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                                ).technique_common.accessor.paramY = new SAccessorParam();
-                                library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                                ).technique_common.accessor.paramY.name = l_name;
-                                library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                                ).technique_common.accessor.paramY.name = l_type;
-                            } else if ("Z".equals(l_name)) {
-                                library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                                ).technique_common.accessor.paramZ = new SAccessorParam();
-                                library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                                ).technique_common.accessor.paramZ.name = l_name;
-                                library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.get(
-                                        library_geometries.geometry.get(library_geometries.geometry.size()-1).mesh.source.size()-1
-                                ).technique_common.accessor.paramZ.name = l_type;
-                            }
+                            p_sources.technique_common.accessor.param_name = parser.getAttributeValue(null,"name");
+                            p_sources.technique_common.accessor.param_type = parser.getAttributeValue(null,"type");
                         } else if ("accessor".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                             break;
                         }
@@ -1708,8 +1840,61 @@ public class ColladaModel {
                         Vector<Integer> value;
                     }
     class SLibraryControllers {
-        //TODO: implement later
+        Vector<SController> controller;
     }
+        class SController {
+            String id;
+            String name;
+            SSkin skin;
+        }
+            class SSkin {
+                String source;
+                SBindShapeMatrix bind_shape_matrix;
+                Vector<SControllerSource> sources;
+                SJoints joints;
+                SVertexWeights vertex_weights;
+            }
+                class SBindShapeMatrix {
+                    String value;
+                }
+                class SControllerSource {
+                    String id;
+                    String Name_array_id;
+                    int Name_array_count;
+                    String Name_array_value;
+                    String float_array_id;
+                    int float_array_count;
+                    String float_array_value;
+                    SControllerSourceTechniqueCommon technique_common;
+                }
+                    class SControllerSourceTechniqueCommon {
+                        SControllerSourceTechniqueCommonAccessor accessor;
+                    }
+                        class SControllerSourceTechniqueCommonAccessor  {
+                            String source;
+                            int count;
+                            int stride;
+                            String param_name;
+                            String param_type;
+                        }
+                class SJoints {
+                    Vector<SJointsInput> input;
+                }
+                    class SJointsInput {
+                        String semantic;
+                        String source;
+                    }
+                class SVertexWeights {
+                    int count;
+                    Vector<SVertexWeightsInput> input;
+                    String vcount;
+                    String v;
+                }
+                    class SVertexWeightsInput {
+                        String semantic;
+                        String source;
+                        int offset;
+                    }
     class SLibraryVisualScenes{
         Vector<SVisualScene> visual_scene;
     }
