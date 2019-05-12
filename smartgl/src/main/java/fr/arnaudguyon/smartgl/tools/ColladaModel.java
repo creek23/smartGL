@@ -495,23 +495,13 @@ public class ColladaModel {
                                 parseColladaLibraryControllers();
                                 Log.d("COLLADA!","library_controllers OUT");
                             } else if ("library_visual_scenes".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                                //visual_scene
-                                //  -- node (Camera)
-                                //       -- matrix
-                                //       -- instance_camera
-                                //  -- node (Lamp)
-                                //       -- matrix
-                                //       -- instance_light
-                                //  -- node (Cube)
-                                //       -- matrix
-                                //       -- instance_geometry
-                                //            -- bind_material [optional]
-                                //                 -- technique_common
-                                //                      -- instance_material
+                                Log.d("COLLADA!","library_visual_scenes IN");
+                                parseColladaLibraryVisualScenes();
+                                Log.d("COLLADA!","library_visual_scenes OUT");
                             } else if ("scene".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
                                 scene = new SScene();
                                 parser.next();
-                                if (parser.getName() == "instance_visual_scene") {
+                                if ("instance_visual_scene".equals(parser.getName())) {
                                     scene.instance_visual_scene_url = parser.getAttributeValue(null, "url");
                                 }
                             }
@@ -701,7 +691,6 @@ public class ColladaModel {
                 while (eventType != XmlPullParser.END_DOCUMENT) {
                     eventType = parser.next();
                     xmlItem = parser.getName();
-                    Log.d("COLLADA","source() xmlItem " + xmlItem + " eventType " + eventType);
                     if ("float_array".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
 //                        Assert.assertNotNull(l_source.float_array);
                         l_source.float_array = new SFloatArray();
@@ -1374,135 +1363,186 @@ public class ColladaModel {
         }
     }
         private void parseColladaLibraryControllersSkin(SController p_controller) {
-        //       -- bind_shape_matrix
-        //       -- source[]
-        //            -- Name_array |or| float_array
-        //            -- technique_common
-        //                 -- accessor
-        //                      -- param
-        //       -- joints
-        //            -- input[]
-        //       -- vertex_weights
-        //            -- input[]
-        //            -- vcount
-        //            -- v
-        try {
-            p_controller.skin = new SSkin();
-            p_controller.skin.source = parser.getAttributeValue(null,"source");
-            int eventType = parser.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                eventType = parser.next();
-                xmlItem = parser.getName();
-                if ("bind_shape_matrix".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    p_controller.skin.bind_shape_matrix = new SBindShapeMatrix();
-                    p_controller.skin.bind_shape_matrix.value = parser.getText();
-                } else if ("source".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    if (p_controller.skin.sources == null) { p_controller.skin.sources = new Vector<>(); }
-                    SControllerSource l_controllerSource = new SControllerSource();
-                    l_controllerSource.id = parser.getAttributeValue(null,"id");
-                    p_controller.skin.sources.add(l_controllerSource);
-                    while (eventType != XmlPullParser.END_DOCUMENT) {
-                        eventType = parser.next();
-                        xmlItem = parser.getName();
-                        //            -- Name_array |or| float_array
-                        //            -- technique_common
-                        if ("Name_array".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            l_controllerSource.Name_array_id = parser.getAttributeValue(null,"id");
-                            l_controllerSource.Name_array_count = Integer.parseInt(parser.getAttributeValue(null,"count"));
-                            l_controllerSource.Name_array_value = parser.getText();
-                        } else if ("float_array".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            l_controllerSource.float_array_id = parser.getAttributeValue(null,"id");
-                            l_controllerSource.float_array_count = Integer.parseInt(parser.getAttributeValue(null,"count"));
-                            l_controllerSource.float_array_value = parser.getText();
-                        } else if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            Log.d("COLLADA!","technique_common IN");
-                            parseColladaLibraryControllersSkinTechniqueCommon(l_controllerSource);
-                            Log.d("COLLADA!","technique_common OUT");
-                        } else if ("source".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
-                            break;
-                        }
-                    }
-                } else if ("joints".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints = new SJoints();
-                    while (eventType != XmlPullParser.END_DOCUMENT) {
-                        eventType = parser.next();
-                        xmlItem = parser.getName();
-                        //            -- input[]
-                        if ("input".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            if (library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints.input == null) {
-                                library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints.input = new Vector<>();
+            //       -- bind_shape_matrix
+            //       -- source[]
+            //            -- Name_array |or| float_array
+            //            -- technique_common
+            //                 -- accessor
+            //                      -- param
+            //       -- joints
+            //            -- input[]
+            //       -- vertex_weights
+            //            -- input[]
+            //            -- vcount
+            //            -- v
+            try {
+                p_controller.skin = new SSkin();
+                p_controller.skin.source = parser.getAttributeValue(null,"source");
+                int eventType = parser.getEventType();
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    eventType = parser.next();
+                    xmlItem = parser.getName();
+                    if ("bind_shape_matrix".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        p_controller.skin.bind_shape_matrix = new SBindShapeMatrix();
+                        p_controller.skin.bind_shape_matrix.value = parser.getText();
+                    } else if ("source".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        if (p_controller.skin.sources == null) { p_controller.skin.sources = new Vector<>(); }
+                        SControllerSource l_controllerSource = new SControllerSource();
+                        l_controllerSource.id = parser.getAttributeValue(null,"id");
+                        p_controller.skin.sources.add(l_controllerSource);
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            eventType = parser.next();
+                            xmlItem = parser.getName();
+                            //            -- Name_array |or| float_array
+                            //            -- technique_common
+                            if ("Name_array".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                l_controllerSource.Name_array_id = parser.getAttributeValue(null,"id");
+                                l_controllerSource.Name_array_count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                                l_controllerSource.Name_array_value = parser.getText();
+                            } else if ("float_array".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                l_controllerSource.float_array_id = parser.getAttributeValue(null,"id");
+                                l_controllerSource.float_array_count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                                l_controllerSource.float_array_value = parser.getText();
+                            } else if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                Log.d("COLLADA!","technique_common IN");
+                                parseColladaLibraryControllersSkinTechniqueCommon(l_controllerSource);
+                                Log.d("COLLADA!","technique_common OUT");
+                            } else if ("source".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                break;
                             }
-                            SJointsInput l_jointsInput = new SJointsInput();
-                            l_jointsInput.semantic = parser.getAttributeValue(null,"semantic");
-                            l_jointsInput.source = parser.getAttributeValue(null,"source");
-                            library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints.input.add(l_jointsInput);
-                        } else if ("joints".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
-                            break;
                         }
+                    } else if ("joints".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints = new SJoints();
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            eventType = parser.next();
+                            xmlItem = parser.getName();
+                            //            -- input[]
+                            if ("input".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                if (library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints.input == null) {
+                                    library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints.input = new Vector<>();
+                                }
+                                SJointsInput l_jointsInput = new SJointsInput();
+                                l_jointsInput.semantic = parser.getAttributeValue(null,"semantic");
+                                l_jointsInput.source = parser.getAttributeValue(null,"source");
+                                library_controllers.controller.get(library_controllers.controller.size()-1).skin.joints.input.add(l_jointsInput);
+                            } else if ("joints".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                break;
+                            }
+                        }
+                    } else if ("vertex_weights".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        p_controller.skin.vertex_weights = new SVertexWeights();
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            eventType = parser.next();
+                            xmlItem = parser.getName();
+                            //            -- input[]
+                            //            -- vcount
+                            //            -- v
+                            if ("input".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                if (p_controller.skin.vertex_weights.input == null) { p_controller.skin.vertex_weights.input = new Vector<>(); }
+                                SVertexWeightsInput l_vertexWeightsInput = new SVertexWeightsInput();
+                                l_vertexWeightsInput.semantic = parser.getAttributeValue(null,"semantic");
+                                l_vertexWeightsInput.source = parser.getAttributeValue(null,"source");
+                                l_vertexWeightsInput.offset = Integer.parseInt(parser.getAttributeValue(null,"offset"));
+                                p_controller.skin.vertex_weights.input.add(l_vertexWeightsInput);
+                            } else if ("vcount".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                p_controller.skin.vertex_weights.vcount  = parser.getText();
+                            } else if ("v".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                p_controller.skin.vertex_weights.v = parser.getText();
+                            } else if ("vertex_weights".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                break;
+                            }
+                        }
+                    } else if (xmlItem == null) {
+                        //do nothing
+                    } else if ("skin".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                        break;
                     }
-                } else if ("vertex_weights".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    p_controller.skin.vertex_weights = new SVertexWeights();
+                }
+            } catch (XmlPullParserException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+            private void parseColladaLibraryControllersSkinTechniqueCommon(SControllerSource p_sources) {
+                //                 -- accessor
+                //                      -- param
+                try {
+                    p_sources.technique_common = new SControllerSourceTechniqueCommon();
+                    int eventType = parser.getEventType();
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         eventType = parser.next();
                         xmlItem = parser.getName();
-                        //            -- input[]
-                        //            -- vcount
-                        //            -- v
-                        if ("input".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            if (p_controller.skin.vertex_weights.input == null) { p_controller.skin.vertex_weights.input = new Vector<>(); }
-                            SVertexWeightsInput l_vertexWeightsInput = new SVertexWeightsInput();
-                            l_vertexWeightsInput.semantic = parser.getAttributeValue(null,"semantic");
-                            l_vertexWeightsInput.source = parser.getAttributeValue(null,"source");
-                            l_vertexWeightsInput.offset = Integer.parseInt(parser.getAttributeValue(null,"offset"));
-                            p_controller.skin.vertex_weights.input.add(l_vertexWeightsInput);
-                        } else if ("vcount".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            p_controller.skin.vertex_weights.vcount  = parser.getText();
-                        } else if ("v".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            p_controller.skin.vertex_weights.v = parser.getText();
-                        } else if ("vertex_weights".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                        if ("accessor".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            p_sources.technique_common.accessor = new SControllerSourceTechniqueCommonAccessor();
+                            p_sources.technique_common.accessor.source = parser.getAttributeValue(null,"source");
+                            p_sources.technique_common.accessor.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
+                            p_sources.technique_common.accessor.stride = Integer.parseInt(parser.getAttributeValue(null,"stride"));
+                            while (eventType != XmlPullParser.END_DOCUMENT) {
+                                eventType = parser.next();
+                                xmlItem = parser.getName();
+                                //  -- param
+                                if ("param".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                    p_sources.technique_common.accessor.param_name = parser.getAttributeValue(null,"name");
+                                    p_sources.technique_common.accessor.param_type = parser.getAttributeValue(null,"type");
+                                } else if ("accessor".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                    break;
+                                }
+                            }
+                        } else if (xmlItem == null) {
+                            //do nothing
+                        } else if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                             break;
                         }
                     }
-                } else if (xmlItem == null) {
-                    //do nothing
-                } else if ("library_controllers".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
-                    break;
+                } catch (XmlPullParserException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-            private void parseColladaLibraryControllersSkinTechniqueCommon(SControllerSource p_sources) {
-        //                 -- accessor
-        //                      -- param
+
+    private void parseColladaLibraryVisualScenes() {
+        //visual_scene
+        //  -- node (Camera)
+        //       -- matrix
+        //       -- instance_camera
+        //  -- node (Lamp)
+        //       -- matrix
+        //       -- instance_light
+        //  -- node (Cube)
+        //       -- matrix
+        //       -- instance_controller (or instance_geometry?)
+        //            -- bind_material [optional]
+        //                 -- technique_common
+        //                      -- instance_material[]
         try {
-            p_sources.technique_common = new SControllerSourceTechniqueCommon();
+            library_visual_scenes = new SLibraryVisualScenes();
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 eventType = parser.next();
                 xmlItem = parser.getName();
-                if ("accessor".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                    p_sources.technique_common.accessor = new SControllerSourceTechniqueCommonAccessor();
-                    p_sources.technique_common.accessor.source = parser.getAttributeValue(null,"source");
-                    p_sources.technique_common.accessor.count = Integer.parseInt(parser.getAttributeValue(null,"count"));
-                    p_sources.technique_common.accessor.stride = Integer.parseInt(parser.getAttributeValue(null,"stride"));
+                if ("visual_scene".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                    if (library_visual_scenes.visual_scene == null) { library_visual_scenes.visual_scene = new Vector<>(); }
+                    SVisualScene l_visualScene = new SVisualScene();
+                        l_visualScene.id = parser.getAttributeValue(null,"id");
+                        l_visualScene.name = parser.getAttributeValue(null,"name");
+                    library_visual_scenes.visual_scene.add(l_visualScene);
                     while (eventType != XmlPullParser.END_DOCUMENT) {
                         eventType = parser.next();
                         xmlItem = parser.getName();
-                        //  -- param
-                        if ("param".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
-                            p_sources.technique_common.accessor.param_name = parser.getAttributeValue(null,"name");
-                            p_sources.technique_common.accessor.param_type = parser.getAttributeValue(null,"type");
-                        } else if ("accessor".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                        //  -- node
+                        if ("node".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            Log.d("COLLADA!","node IN");
+                            parseColladaLibraryVisualScenesNode(l_visualScene);
+                            Log.d("COLLADA!","node OUT");
+                        } else if ("visual_scene".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                             break;
                         }
                     }
                 } else if (xmlItem == null) {
                     //do nothing
-                } else if ("technique_common".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                } else if ("library_visual_scenes".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
                     break;
                 }
             }
@@ -1512,6 +1552,163 @@ public class ColladaModel {
             e.printStackTrace();
         }
     }
+        private void parseColladaLibraryVisualScenesNode(SVisualScene p_visualScene) {
+            //  -- node (Camera)
+            //       -- matrix
+            //       -- instance_camera
+            //  -- node (Lamp)
+            //       -- matrix
+            //       -- instance_light
+            //  -- node (Cube)
+            //       -- matrix
+            //       -- instance_controller (or instance_geometry?)
+            //            -- bind_material [optional]
+            //                 -- technique_common
+            //                      -- instance_material[]
+            try {
+                if (p_visualScene.node == null) { p_visualScene.node = new Vector<>(); }
+                SNode l_node = new SNode();
+                    l_node.id = parser.getAttributeValue(null,"id");
+                    l_node.name = parser.getAttributeValue(null,"name");
+                    l_node.type = parser.getAttributeValue(null,"type");
+                    Log.d("COLLADA?", "id " + l_node.id + " name " + l_node.name + " type " + l_node.type);
+                p_visualScene.node.add(l_node);
+                int eventType = parser.getEventType();
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    eventType = parser.next();
+                    xmlItem = parser.getName();
+                    if ("translate".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        l_node.translate = new STranslate();
+                        l_node.translate.sid = parser.getAttributeValue(null, "sid");
+                        l_node.translate.values = parser.getText();
+                    } else if ("rotate".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        if (l_node.rotate == null) { l_node.rotate = new Vector<>(); }
+                        SRotate l_rotate = new SRotate();
+                            l_rotate.sid = parser.getAttributeValue(null,"sid");
+                            l_rotate.values = parser.getText();
+                        l_node.rotate.add(l_rotate);
+                    } else if ("instance_camera".equals(xmlItem) && eventType == XmlPullParser.START_TAG
+                                || "instance_light".equals(xmlItem) && eventType == XmlPullParser.START_TAG
+                                || "instance_geometry".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        l_node.instance_url = parser.getAttributeValue(null,"url");
+                    } else if ("node".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                        Log.d("COLLADA!","node-inception IN");
+                        l_node.node = new SVisualSceneNode();
+                        parseColladaLibraryVisualScenesNodeInception(l_node.node);
+                        Log.d("COLLADA!","node-inception OUT");
+                    } else if (xmlItem == null) {
+                        //do nothing
+                    } else if ("node".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                        break;
+                    }
+                }
+            } catch (XmlPullParserException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+            private void parseColladaLibraryVisualScenesNodeInception(SVisualSceneNode p_node) {
+                //       -- matrix
+                //       -- node[]
+                //       -- extra
+                try {
+//                    p_node = new SVisualSceneNode();
+                    p_node.id = parser.getAttributeValue(null,"id");
+                    p_node.name = parser.getAttributeValue(null,"name");
+                    p_node.sid = parser.getAttributeValue(null,"sid");
+                    p_node.type = parser.getAttributeValue(null,"type");
+                    int eventType = parser.getEventType();
+                    while (eventType != XmlPullParser.END_DOCUMENT) {
+                        eventType = parser.next();
+                        xmlItem = parser.getName();
+                        if ("matrix".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            p_node.matrix = new SMatrix();
+                            p_node.matrix.sid = parser.getAttributeValue(null, "sid");
+                            p_node.matrix.values = parser.getText();
+                        } else if ("extra".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            p_node.extra = new SVisualSceneNodeExtra();
+                            while (eventType != XmlPullParser.END_DOCUMENT) {
+                                eventType = parser.next();
+                                xmlItem = parser.getName();
+                                //  -- node
+                                if ("technique".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                    parseColladaLibraryVisualScenesNodeInceptionTechnique(p_node.extra);
+                                } else if ("extra".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                    break;
+                                }
+                            }
+                        } else if ("node".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                            if (p_node.node == null) { p_node.node = new Vector<>(); }
+                            SVisualSceneNode l_node = new SVisualSceneNode();
+                            p_node.node.add(l_node);
+                            Log.d("COLLADA!","  node-inception IN");
+                                parseColladaLibraryVisualScenesNodeInception(l_node);
+                            Log.d("COLLADA!","  node-inception OUT");
+                        } else if (xmlItem == null) {
+                            //do nothing
+                        } else if ("node".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                            break;
+                        }
+                    }
+                } catch (XmlPullParserException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+                private void parseColladaLibraryVisualScenesNodeInceptionTechnique(SVisualSceneNodeExtra p_extra) {
+                    //       -- layer
+                    //       -- roll
+                    //       -- tip_x
+                    //       -- tip_y
+                    //       -- tip_z
+                    try {
+                        p_extra.technique = new SVisualSceneNodeExtraTechnique();
+                        p_extra.technique.profile = parser.getAttributeValue(null,"profile");
+                        int eventType = parser.getEventType();
+                        String l_tmp = "";
+                        while (eventType != XmlPullParser.END_DOCUMENT) {
+                            eventType = parser.next();
+                            xmlItem = parser.getName();
+                            if ("layer".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                p_extra.technique.layer_sid = parser.getAttributeValue(null, "sid");
+                                p_extra.technique.layer_type = parser.getAttributeValue(null, "type");
+                                l_tmp = parser.getText();
+                                if (l_tmp == null) { continue; }
+                                p_extra.technique.layer_value = Integer.parseInt(l_tmp);
+                            } else if ("roll".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                p_extra.technique.roll_sid = parser.getAttributeValue(null, "sid");
+                                p_extra.technique.roll_type = parser.getAttributeValue(null, "type");
+                                if (l_tmp == null) { continue; }
+                                p_extra.technique.roll_value = Float.parseFloat(l_tmp);
+                            } else if ("tip_x".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                p_extra.technique.tip_x_sid = parser.getAttributeValue(null, "sid");
+                                p_extra.technique.tip_x_type = parser.getAttributeValue(null, "type");
+                                if (l_tmp == null) { continue; }
+                                p_extra.technique.tip_x_value = Float.parseFloat(l_tmp);
+                            } else if ("tip_y".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                p_extra.technique.tip_y_sid = parser.getAttributeValue(null, "sid");
+                                p_extra.technique.tip_y_type = parser.getAttributeValue(null, "type");
+                                if (l_tmp == null) { continue; }
+                                p_extra.technique.tip_y_value = Float.parseFloat(l_tmp);
+                            } else if ("tip_z".equals(xmlItem) && eventType == XmlPullParser.START_TAG) {
+                                p_extra.technique.tip_z_sid = parser.getAttributeValue(null, "sid");
+                                p_extra.technique.tip_z_type = parser.getAttributeValue(null, "type");
+                                if (l_tmp == null) { continue; }
+                                p_extra.technique.tip_z_value = Float.parseFloat(l_tmp);
+                            } else if (xmlItem == null) {
+                                //do nothing
+                            } else if ("technique".equals(xmlItem) && eventType == XmlPullParser.END_TAG) {
+                                break;
+                            }
+                        }
+                    } catch (XmlPullParserException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
     //==============================================================================================
     //==============================================================================================
     //==============================================================================================
@@ -1525,6 +1722,7 @@ public class ColladaModel {
     public SLibraryMaterials library_materials;
     public SLibraryGeometries library_geometries;
     public SLibraryControllers library_controllers;
+    public SLibraryVisualScenes library_visual_scenes;
     public SScene scene;
 
     class SAsset {
@@ -1902,18 +2100,66 @@ public class ColladaModel {
             String id;
             String name;
             Vector<SNode> node;
-            SVisualScene() {
-                node = new Vector<>();
-            }
         }
             class SNode {
                 String id;
                 String name;
                 String type;
-                SMatrix matrix;
+                STranslate translate;
+                Vector<SRotate> rotate;
+                SScale scale;
                 String instance_url; //for use of camera/light/geometry
-                SInstanceGeometry instance_geometry; //for use of geometry
+//                SMatrix matrix;
+//                SInstanceGeometry instance_geometry; //for use of geometry
+                SInstanceController instance_controller; //the skeleton thingy
+                SVisualSceneNode node;
             }
+                class SInstanceController {
+                    String skeleton_value;
+                    SBindMaterial bind_material;
+                }
+                class SVisualSceneNode {
+                    String id;
+                    String name;
+                    String sid;
+                    String type;
+                    SMatrix matrix;
+                    Vector<SVisualSceneNode> node; //TODO: make sure recursive parsing is handled correctly
+                    SVisualSceneNodeExtra extra;
+                }
+                    class SVisualSceneNodeExtra {
+                        SVisualSceneNodeExtraTechnique technique;
+                    }
+                        class SVisualSceneNodeExtraTechnique {
+                            String profile;
+                            String layer_sid;
+                            String layer_type;
+                            int layer_value;
+                            String roll_sid;
+                            String roll_type;
+                            float roll_value;
+                            String tip_x_sid;
+                            String tip_x_type;
+                            float tip_x_value;
+                            String tip_y_sid;
+                            String tip_y_type;
+                            float tip_y_value;
+                            String tip_z_sid;
+                            String tip_z_type;
+                            float tip_z_value;
+                        }
+                class STranslate {
+                    String sid;
+                    String values;
+                }
+                class SRotate {
+                    String sid;
+                    String values;
+                }
+                class SScale {
+                    String sid;
+                    String values;
+                }
                 class SMatrix {
                     String sid;
                     String values;
@@ -1927,7 +2173,7 @@ public class ColladaModel {
                         SVisualSceneTechniqueCommon technique_common;
                     }
                         class SVisualSceneTechniqueCommon {
-                            SInstanceMaterial instance_material;
+                            Vector<SInstanceMaterial> instance_material;
                         }
                             class SInstanceMaterial {
                                 String symbol;
