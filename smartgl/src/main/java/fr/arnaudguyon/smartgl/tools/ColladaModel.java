@@ -128,11 +128,49 @@ public class ColladaModel {
     private ArrayList<Vertex> mVertex = new ArrayList<>();
     private ArrayList<UV> mUVs = new ArrayList<>(); //DAE's TEXCOORD (Texture Coordinate)
     private ArrayList<Normal> mNormals = new ArrayList<>();
+    private ArrayList<Strip> mStrips = new ArrayList<>();
+
+    private static class IndexInfo {
+        int mVertexIndex;
+        int mUVIndex;
+        int mNormalIndex;
+
+        static IndexInfo create(Integer vertexIndex, Integer uvIndex, Integer normalIndex) {
+            if (vertexIndex == null) {
+                return null;
+            }
+            IndexInfo indexInfo = new IndexInfo();
+            indexInfo.mVertexIndex = vertexIndex;
+            indexInfo.mUVIndex = (uvIndex != null) ? uvIndex: -1;
+            indexInfo.mNormalIndex = (normalIndex != null) ? normalIndex: -1;
+            return indexInfo;
+        }
+        static IndexInfo create(int vertexIndex, int uvIndex, int normalIndex) {
+            IndexInfo indexInfo = new IndexInfo();
+            indexInfo.mVertexIndex = vertexIndex;
+            indexInfo.mUVIndex = uvIndex;
+            indexInfo.mNormalIndex = normalIndex;
+            return indexInfo;
+        }
+    }
+
+    private static class Strip {
+        String mTextureName;
+        ArrayList<IndexInfo> mIndexes = new ArrayList<>();
+
+        Strip(String textureName) {
+            mTextureName = textureName;
+        }
+        void addIndex(IndexInfo indexInfo) { mIndexes.add(indexInfo); }
+        void addAll(ArrayList<IndexInfo> indexes) {
+            mIndexes.addAll(indexes);
+        }
+    }
 
     private void validate3D() {
         /*TODO: current implementation is meant for `randomshape.dae'; improve validation further with other DAEs
-            ideally, any single-geometry DAE without Texture (UV Map) can be loaded and displayed
-            Still need to implement textured DAE rendering; already confirmed that it's loading
+            ideally, any single-geometry DAE with/without Texture (UV Map) can be loaded and displayed
+            FPS got boosted but currently have issues with rendering tho.
         */
         Assert.assertNotNull(library_geometries);
         Assert.assertNotNull(library_geometries.geometry);
@@ -182,11 +220,10 @@ public class ColladaModel {
                     }
                 }
             }
-        triangleCount = 0;
+
         for (triangleIndex = 0; triangleIndex < library_geometries.geometry.get(0).mesh.triangles.size(); ++triangleIndex) {
             Assert.assertNotNull(library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).input);
 
-            triangleCount += library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).count;
             for (int i = 0; i < library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).count; ++i) {
                 mFaces.add(new Face3D());
             }
@@ -213,19 +250,26 @@ public class ColladaModel {
             } else {
                 INPUT_increment = 3;
             }
-
+            int numberOfVertex = library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.size();
+            ArrayList<IndexInfo> indexInfos = new ArrayList<>(numberOfVertex);
             for (int i = 0; i < library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.size(); i += INPUT_increment) {
-                if (INPUT_VERTEX != -1) { vertexIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.get(i + INPUT_VERTEX)); }
-                if (INPUT_NORMAL != -1) { normalIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.get(i + INPUT_NORMAL)); }
-                if (INPUT_TEXCOORD != -1) { uvIndex.add(library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.get(i + INPUT_TEXCOORD)); }
+                Integer l_vertexIndex = null;
+                Integer l_normalIndex = null;
+                Integer l_uvIndex = null;
+                if (INPUT_VERTEX != -1) { l_vertexIndex = library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.get(i + INPUT_VERTEX); }
+                if (INPUT_NORMAL != -1) { l_normalIndex = library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.get(i + INPUT_NORMAL); }
+                if (INPUT_TEXCOORD != -1) { l_uvIndex = library_geometries.geometry.get(0).mesh.triangles.get(triangleIndex).p.value.get(i + INPUT_TEXCOORD); }
+                IndexInfo indexInfo = IndexInfo.create(l_vertexIndex, l_uvIndex, l_normalIndex);
+                indexInfos.add(indexInfo);
             }
+            Strip strip = new Strip("");
+            for(IndexInfo indexInfo : indexInfos) {
+                strip.addIndex(indexInfo);
+            }
+            mStrips.add(strip);
         }
     }
 
-    Vector<Integer> vertexIndex = new Vector<>();
-    Vector<Integer> normalIndex = new Vector<>();
-    Vector<Integer> uvIndex = new Vector<>();
-    private int triangleCount;
     private int triangleIndex = 0;
 
     public Object3D toObject3D() {
@@ -233,10 +277,10 @@ public class ColladaModel {
         final boolean hasNormals = (mNormals.size() > 0);
 
         Object3D object3D = new Object3D();
-        for (int i = 0; i < triangleCount; ++i) {
-            Face3D face3D = new Face3D();
+        for(Strip strip : mStrips) {
 
-            int nbIndex = 3;//triangleCount*3;
+            Face3D face3D = new Face3D();
+            int nbIndex = strip.mIndexes.size(); //triangleCount * 3
 
             VertexList vertexList = new VertexList();
             vertexList.init(nbIndex);
@@ -257,13 +301,14 @@ public class ColladaModel {
                 normalList.init(nbIndex);
             }
 
-            for (int j = 0; j < 3; ++j) {
-//                Log.d("COLLADA", "i " + i + "  j " + j + "  INPUT_increment " + 3 + "  ? = " + ((i*3) + j));
-                Vertex vertex = mVertex.get(vertexIndex.get((i*3) + j));
+            for(IndexInfo indexInfo : strip.mIndexes) {
+                int vertexIndex = indexInfo.mVertexIndex;
+                Vertex vertex = mVertex.get(vertexIndex);
                 vertexList.add(vertex.mX, vertex.mY, vertex.mZ);
 
                 if (hasUV) {
-                    UV uv = mUVs.get(uvIndex.get((i*3) + j));
+                    int uvIndex = indexInfo.mUVIndex;
+                    UV uv = mUVs.get(uvIndex);
                     uvList.add(uv.mU, uv.mV);
                 } else if (vertex.mHasColors) {
                     colorList.add(vertex.mR, vertex.mG, vertex.mB, 1);
@@ -277,11 +322,11 @@ public class ColladaModel {
                 }
 
                 if (hasNormals) {
-                    Normal normal = mNormals.get(normalIndex.get((i*3) + j));
+                    int normalIndex = indexInfo.mNormalIndex;
+                    Normal normal = mNormals.get(normalIndex);
                     normalList.add(normal.mX, normal.mY, normal.mZ);
                 }
             }
-
             vertexList.finalizeBuffer();
             face3D.setVertexList(vertexList);
 
@@ -305,7 +350,6 @@ public class ColladaModel {
 
             object3D.addFace(face3D);
         }
-
         return object3D;
     }
 
@@ -350,7 +394,6 @@ public class ColladaModel {
             mZ = values[2];
         }
     }
-
     private class UV {
         float mU;
         float mV;
@@ -2093,7 +2136,7 @@ public class ColladaModel {
                         String source;
                         int offset;
                     }
-    class SLibraryVisualScenes{
+    class SLibraryVisualScenes {
         Vector<SVisualScene> visual_scene;
     }
         class SVisualScene {
