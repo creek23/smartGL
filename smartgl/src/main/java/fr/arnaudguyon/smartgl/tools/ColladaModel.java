@@ -102,7 +102,10 @@ public class ColladaModel extends BaseModel {
 
             colladaParser = new ColladaParser(xmlPullParser);
         } catch (XmlPullParserException e) {
-            Log.d("COLLADA!", "Error " + e.getMessage());
+            Log.d("COLLADA!", "XMLError " + e.getMessage());
+        } catch (IOException e) {
+            Log.d("COLLADA!", "IOError " + e.getMessage());
+            e.printStackTrace();
         } finally {
             if (reader != null) {
                 try {
@@ -253,12 +256,12 @@ public class ColladaModel extends BaseModel {
 
             for(IndexInfo indexInfo : strip.mIndexes) {
                 int vertexIndex = indexInfo.mVertexIndex;
-                Vertex vertex = mVertex.get(vertexIndex);
+                Vertex vertex = mVertex.get(vertexIndex+1);
                 vertexList.add(vertex.mX, vertex.mY, vertex.mZ);
 
                 if (hasUV) {
                     int uvIndex = indexInfo.mUVIndex;
-                    UV uv = mUVs.get(uvIndex);
+                    UV uv = mUVs.get(uvIndex+1);
                     uvList.add(uv.mU, uv.mV);
                 } else if (vertex.mHasColors) {
                     colorList.add(vertex.mR, vertex.mG, vertex.mB, 1);
@@ -273,7 +276,7 @@ public class ColladaModel extends BaseModel {
 
                 if (hasNormals) {
                     int normalIndex = indexInfo.mNormalIndex;
-                    Normal normal = mNormals.get(normalIndex);
+                    Normal normal = mNormals.get(normalIndex+1);
                     normalList.add(normal.mX, normal.mY, normal.mZ);
                 }
             }
