@@ -28,10 +28,7 @@ import java.util.HashMap;
 
 import fr.arnaudguyon.smartgl.math.Vector3D;
 import fr.arnaudguyon.smartgl.opengl.ColorList;
-import fr.arnaudguyon.smartgl.opengl.Face3D;
 import fr.arnaudguyon.smartgl.opengl.NormalList;
-import fr.arnaudguyon.smartgl.opengl.Object3D;
-import fr.arnaudguyon.smartgl.opengl.Texture;
 import fr.arnaudguyon.smartgl.opengl.UVList;
 import fr.arnaudguyon.smartgl.opengl.VertexList;
 
@@ -40,7 +37,7 @@ import fr.arnaudguyon.smartgl.opengl.VertexList;
  * Helper to load Wavefront objects and convert them to Object3D
  */
 
-public class WavefrontModel {
+public class WavefrontModel extends BaseModel {
 
     private static final String TAG = "WavefrontModel";
 
@@ -82,95 +79,6 @@ public class WavefrontModel {
         }
 
     }
-
-    private static class IndexInfo {
-        int mVertexIndex;
-        int mUVIndex;
-        int mNormalIndex;
-
-        static IndexInfo create(Integer vertexIndex, Integer uvIndex, Integer normalIndex) {
-            if (vertexIndex == null) {
-                return null;
-            }
-            IndexInfo indexInfo = new IndexInfo();
-            indexInfo.mVertexIndex = vertexIndex - 1;
-            indexInfo.mUVIndex = (uvIndex != null) ? uvIndex - 1 : 0;
-            indexInfo.mNormalIndex = (normalIndex != null) ? normalIndex - 1 : 0;
-            return indexInfo;
-        }
-    }
-
-    private static class Strip {
-        String mTextureName;
-        ArrayList<IndexInfo> mIndexes = new ArrayList<>();
-
-        Strip(String textureName) {
-            mTextureName = textureName;
-        }
-        void addIndex(IndexInfo indexInfo) {
-            mIndexes.add(indexInfo);
-        }
-        void addAll(ArrayList<IndexInfo> indexes) {
-            mIndexes.addAll(indexes);
-        }
-    }
-
-    private class Vertex {
-        float mX;
-        float mY;
-        float mZ;
-
-        float mR, mG, mB;
-        boolean mHasColors = false;
-
-        Vertex(float x, float y, float z) {
-            mX = x;
-            mY = y;
-            mZ = z;
-        }
-
-        void setColors(float r, float g, float b) {
-            mHasColors = true;
-            mR = r;
-            mG = g;
-            mB = b;
-        }
-    }
-
-    private class Normal {
-        float mX;
-        float mY;
-        float mZ;
-
-        Normal(float x, float y, float z) {
-            mX = x;
-            mY = y;
-            mZ = z;
-        }
-
-        Normal(Vector3D vector) {
-            float[] values = vector.getArray();
-            mX = values[0];
-            mY = values[1];
-            mZ = values[2];
-        }
-    }
-
-    private class UV {
-        float mU;
-        float mV;
-        UV(float u, float v) {
-            mU = u;
-            mV = v;
-        }
-    }
-
-    private ArrayList<Vertex> mVertex = new ArrayList<>();
-    private ArrayList<UV> mUVs = new ArrayList<>();
-    private ArrayList<Normal> mNormals = new ArrayList<>();
-    private ArrayList<Strip> mStrips = new ArrayList<>();
-    private HashMap<String, Texture> mTextures = new HashMap<>();
-    private float[] mColor;
 
     private WavefrontModel() {
     }
