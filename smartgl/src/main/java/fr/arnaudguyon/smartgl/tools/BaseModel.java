@@ -46,9 +46,9 @@ public class BaseModel {
                 return null;
             }
             IndexInfo indexInfo = new IndexInfo();
-            indexInfo.mVertexIndex = vertexIndex;
-            indexInfo.mUVIndex = (uvIndex != null) ? uvIndex: -1;
-            indexInfo.mNormalIndex = (normalIndex != null) ? normalIndex: -1;
+            indexInfo.mVertexIndex = vertexIndex - 1;
+            indexInfo.mUVIndex = (uvIndex != null) ? uvIndex - 1: 0;
+            indexInfo.mNormalIndex = (normalIndex != null) ? normalIndex - 1: 0;
             return indexInfo;
         }
         static IndexInfo create(int vertexIndex, int uvIndex, int normalIndex) {
