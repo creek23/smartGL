@@ -37,8 +37,9 @@ import fr.arnaudguyon.smartgl.tools.Assert;
 public class ColladaParser {
     XmlPullParser parser;
     private String xmlItem = "";
-    public ColladaParser(XmlPullParser p_parser) {
+    public ColladaParser(XmlPullParser p_parser) throws IOException, XmlPullParserException {
         parser = p_parser;
+        processCollada(parser);
     }
 
     public void processCollada(XmlPullParser parser) throws IOException, XmlPullParserException {
